@@ -168,9 +168,52 @@ impl<'de> Deserialize<'de> for Id {
     where
         D: Deserializer<'de>,
     {
-        let s: &str = Deserialize::deserialize(deserializer)?;
+        let s: String = Deserialize::deserialize(deserializer)?;
         Id::from_str(&s).map_err(serde::de::Error::custom)
     }
+}
+
+/// RUST_LOG=debug cargo test --package avalanche-types --lib -- ids::node::test_custom_de_serializer --exact --show-output
+#[test]
+fn test_custom_de_serializer() {
+    #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+    struct Data {
+        node_id: Id,
+    }
+
+    let d = Data {
+        node_id: Id::from_str("NodeID-6ZmBHXTqjknJoZtXbnJ6x7af863rXDTwx").unwrap(),
+    };
+
+    let yaml_encoded = serde_yaml::to_string(&d).unwrap();
+    println!("yaml_encoded:\n{}", yaml_encoded);
+    let yaml_decoded = serde_yaml::from_str(&yaml_encoded).unwrap();
+    assert_eq!(d, yaml_decoded);
+
+    let json_encoded = serde_json::to_string(&d).unwrap();
+    println!("json_encoded:\n{}", json_encoded);
+    let json_decoded = serde_json::from_str(&json_encoded).unwrap();
+    assert_eq!(d, json_decoded);
+
+    let json_decoded_2: Data = serde_json::from_str(
+        "
+
+{
+    \"node_id\":\"NodeID-6ZmBHXTqjknJoZtXbnJ6x7af863rXDTwx\"
+}
+
+",
+    )
+    .unwrap();
+    assert_eq!(d, json_decoded_2);
+
+    let json_encoded_3 = serde_json::json!(
+        {
+            "node_id": "NodeID-6ZmBHXTqjknJoZtXbnJ6x7af863rXDTwx"
+        }
+    );
+    let json_decoded_3: Data = serde_json::from_value(json_encoded_3).unwrap();
+    assert_eq!(d, json_decoded_3);
 }
 
 fn fmt_id<'de, D>(deserializer: D) -> Result<Id, D::Error>
