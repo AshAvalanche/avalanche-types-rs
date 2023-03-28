@@ -830,9 +830,6 @@ pub struct ApiPrimaryValidator {
     /// None for subnet validator.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delegators: Option<Vec<ApiPrimaryDelegator>>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub staked: Option<Vec<ApiUtxo>>,
 }
 
 impl Default for ApiPrimaryValidator {
@@ -860,7 +857,6 @@ impl ApiPrimaryValidator {
             delegator_count: None,
             delegator_weight: None,
             delegators: None,
-            staked: None,
         }
     }
 }
