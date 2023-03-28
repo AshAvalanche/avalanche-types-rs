@@ -173,7 +173,7 @@ impl<'de> Deserialize<'de> for Id {
     where
         D: Deserializer<'de>,
     {
-        let s: &str = Deserialize::deserialize(deserializer)?;
+        let s: String = Deserialize::deserialize(deserializer)?;
         Id::from_str(&s).map_err(serde::de::Error::custom)
     }
 }
@@ -211,6 +211,14 @@ fn test_custom_de_serializer() {
     )
     .unwrap();
     assert_eq!(d, json_decoded_2);
+
+    let json_encoded_3 = serde_json::json!(
+        {
+            "id": "g25v3qDyAaHfR7kBev8tLUHouSgN5BJuZjy1BYS1oiHd2vres"
+        }
+    );
+    let json_decoded_3: Data = serde_json::from_value(json_encoded_3).unwrap();
+    assert_eq!(d, json_decoded_3);
 }
 
 fn fmt_id<'de, D>(deserializer: D) -> std::result::Result<Id, D::Error>
